@@ -1,0 +1,16 @@
+# LLM and API
+openai>=1.12.0
+python-dotenv>=1.0.0
+httpx>=0.26.0
+
+# Data models and validation
+pydantic>=2.5.2
+
+# Async support
+asyncio>=3.4.3
+
+# Testing
+pytest>=7.4.3
+
+# JSON handling
+json5>=0.9.14

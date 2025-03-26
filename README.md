@@ -1,0 +1,34 @@
+# Agent Prompt Validation System
+
+This system implements a multi-agent validation framework using DeepSeek as the base model. It includes:
+
+1. Configurable LLM setup
+2. Multi-agent communication system
+3. Role-specific agents:
+   - Supervisor Agent (Project Manager)
+   - Metadata Steward Agent (Data Governance Engineer)
+   - Data Calibration Agent (Data Administrator)
+   - Data Development Agent (Data Engineer)
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+```
+
+## Configuration
+
+Create a `.env` file with:
+
+```
+DEEPSEEK_API_KEY=your_api_key_here
+```
+
+## Usage
+
+```python
+from agent_system import AgentSystem
+
+system = AgentSystem()
+result = system.process_task("Your task description")
+```
