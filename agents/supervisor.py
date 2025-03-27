@@ -25,8 +25,8 @@ Collaborative Agents:
 
 - Data Calibrator Agent (Data Admin Persona):
   - Manages business terminology and metric definitions.
-  - Capability: Data Source Search, Semantic Search, Metric Query, Business Glossary.
-  - Deliverables: The calcualtion logic for the data fields or metrics, business semantics for the data fields or metrics, source table and fields, data feild unit. 
+  - Capability: Data source table and fields search, technology and business semantic search.
+  - Deliverables:  Source table and fields, calcualtion logic for the data fields or metrics, business semantics for the data fields or metrics, data feild unit. 
 
 - Data Engineer Agent (Data Development Engineer Persona):
   - Handles code generation and data pipeline development, according to the requirements from requestor. 
@@ -34,18 +34,21 @@ Collaborative Agents:
   - Deliverables: SQL/Python Code, Data Pipeline, Data Validation Results and query results.
 
 Operational Guidelines:
+- When spliting tasks, please consider the requirements details is included in the task description for the tool calling.
+- The original user message should be provided in the task description.
 - Use dynamic path planning for complex workflows (sequential/parallel/rollback modes).
 - Implement version-controlled execution for critical metadata operations.
 - Prioritize automated lineage tracking for all data transformations.
-- Enforce dual-validation between Developer and Calibrator agents.
 - Maintain semantic consistency across business and technical definitions.
 
 Execution Protocol:
-- Initiate projects with data calibrator phase.
+- Initiate projects with data calibrator phase, the original user reqiuremnts must be sent to the data calibrator agent.
 - the data calibrator agent recieve message from the supervisor agent and then feedback the deliverables to the supervisor agent.
 - the supervisor then feedback the deliverables to the data developer agent.
 - the data developer agent then feedback the deliverables to the supervisor agent step by step.
 - the supervisor need to validate the results before take next action.
+- If the user didn't explicitly require the data govertance requirements, don't involve the data govertance agent.
+- the task description should be aligned with the corresponding agent's capability and deliverables, make sure the task description is clear and concise, and be executable by the corresponding agent.
 
 use Chinese to communicate with the agents.
 """
@@ -57,18 +60,19 @@ use Chinese to communicate with the agents.
     async def process_task(self, task: str) -> Dict[str, Any]:
         """Process a project management task using LLM for thinking and function calling"""
         # 构建提示词，让LLM思考如何处理任务
-        prompt = f"Given the task: {task}\nPlease analyze this task and create a detailed execution plan with steps and assignments."
+        prompt = f"Given the task: {task}\nPlease analyze this task and create a detailed execution plan with steps and execute step by step."
         
         # 定义工具调用结构
         tools = [
             {
                 "type": "function",
                 "function": {
-                    "name": "create_execution_plan",
+                    "name": "create_supervisor_execution_plan",
                     "description": "创建任务执行计划",
                     "parameters": {
                         "type": "object",
                         "properties": {
+                            "requirments" :{"type": "string"},
                             "plan": {
                                 "type": "array",
                                 "items": {
@@ -95,26 +99,10 @@ use Chinese to communicate with the agents.
                 }
             }
         ]
+
+        tool_choice = {"type": "function", "function": {"name": "create_supervisor_execution_plan"}}
         
-        # 使用父类的函数调用方法
-        result = await self.process_task_with_tool_calling(
-            task=prompt,
-            tools=tools,
-            tool_choice={"type": "function", "function": {"name": "create_execution_plan"}}
-        )
-        
-        # 如果函数调用出错，直接返回错误
-        if result.get("status") == "error" or "error" in result:
-            error_message = result.get("error", "Unknown error in function calling")
-            return {
-                "status": "error",
-                "error": error_message,
-                "message": f"Failed to generate task plan: {error_message}"
-            }
-        
-        # 添加状态信息
-        result["status"] = "in_progress"
-        
-        return result
+        # 调用基类的通用方法
+        return await self.process_task_with_error_handling(task=prompt, tools=tools, tool_choice=tool_choice)
 
     # Mock methods removed as they are no longer needed

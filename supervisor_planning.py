@@ -7,7 +7,6 @@ from agents.supervisor import SupervisorAgent
 from agent_system.llm import DeepSeekLLM
 from agent_system.message_bus import MessageBus
 
-
 async def supervisor_planning():
     """使用SupervisorAgent进行任务规划"""
     # 初始化配置
@@ -33,46 +32,12 @@ async def supervisor_planning():
     print(f"Processing task with SupervisorAgent...")
     try:
         result = await supervisor.process_task(task)
-        
-        # 打印结果
-        print("\nTask Plan Generated:")
-        print(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        # 检查是否有错误
-        if result.get("status") == "error":
-            print(f"\nError: {result.get('message', 'Unknown error')}")
-            print("Please try again or check the system configuration.")
-            
-            # 打印原始响应以进行调试
-            print("\nRaw LLM Response for debugging:")
-            if "raw_response" in result:
-                print(json.dumps(result["raw_response"], indent=2))
-            else:
-                print("No raw response available")
-            
-            # 打印完整的处理结果
-            print("\nFull processing result:")
-            print(json.dumps(result, indent=2))
+        return supervisor.handle_task_result(result)
     except Exception as e:
         print(f"\nException occurred: {str(e)}")
         print("Full traceback:")
         traceback.print_exc()
         return result
-    
-    # 提取并打印计划详情
-    if "plan" in result:
-        print("\nTask Steps:")
-        for step in result["plan"]:
-            print(f"- Step {step.get('step', 'N/A')}: {step.get('task', 'N/A')} -> {step.get('assigned_to', 'N/A')}")
-    
-    if "assignments" in result:
-        print("\nAgent Assignments:")
-        for agent, tasks in result["assignments"].items():
-            print(f"- {agent}:")
-            for task in tasks:
-                print(f"  * {task}")
-    
-    return result
 
 
 if __name__ == "__main__":
