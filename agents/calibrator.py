@@ -3,7 +3,7 @@ import json
 from agent_system.base_agent import BaseAgent
 from agent_system.config import AgentConfig
 
-class DataCalibrationTools:
+class CalibrationTools:
     """Mock tools for data calibration"""
     @staticmethod
     def semantic_search(description: str) -> List[Dict[str, Any]]:
@@ -16,10 +16,10 @@ class DataCalibrationTools:
             "technical_definition": "SUM(amount) - SUM(tax_amount)"
         }
 
-class DataCalibrationAgent(BaseAgent):
+class CalibratorAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
         super().__init__(config, message_bus, llm)
-        self.tools = DataCalibrationTools()
+        self.tools = CalibrationTools()
         self.system_prompt = """You are an AI Data Administrator (Data Calibration Agent) responsible for:
 1. Managing enterprise data definitions
 2. Providing quick access to business and technical terms

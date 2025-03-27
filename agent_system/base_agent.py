@@ -137,6 +137,7 @@ class BaseAgent:
     async def handle_message(self, message: Dict[str, Any]):
         """处理从消息总线接收到的消息"""
         # 默认实现：将消息添加到上下文
+        print(f"Received message: {message}")
         self.context.update(message)
     
     async def publish_result(self, result: Dict[str, Any]):

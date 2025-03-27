@@ -5,7 +5,7 @@ from .llm import DeepSeekLLM
 from .message_bus import MessageBus
 from agents.supervisor import SupervisorAgent
 from agents.metadata_steward import MetadataStewardAgent
-from agents.calibrator import DataCalibrationAgent
+from agents.calibrator import CalibratorAgent
 from agents.data_developer import DataDeveloperAgent
 
 class AgentSystem:
