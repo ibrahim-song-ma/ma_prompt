@@ -18,17 +18,9 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Create a `.env` file with:
+Create a `config.py` file with:
 
 ```
 DEEPSEEK_API_KEY=your_api_key_here
 ```
 
-## Usage
-
-```python
-from agent_system import AgentSystem
-
-system = AgentSystem()
-result = system.process_task("Your task description")
-```
