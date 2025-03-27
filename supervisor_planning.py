@@ -35,7 +35,7 @@ async def supervisor_planning():
         
         # 打印结果
         print("\nTask Plan Generated:")
-        print(json.dumps(result, indent=2))
+        print(json.dumps(result, indent=2, ensure_ascii=False))
         
         # 检查是否有错误
         if result.get("status") == "error":
