@@ -1,5 +1,6 @@
 import asyncio
 import json
+import traceback
 from typing import Dict, Any, List
 from agent_system.config import load_config, AgentConfig
 from agents.supervisor import SupervisorAgent
@@ -55,9 +56,7 @@ async def supervisor_planning():
     except Exception as e:
         print(f"\nException occurred: {str(e)}")
         print("Full traceback:")
-        import traceback
         traceback.print_exc()
-        
         return result
     
     # 提取并打印计划详情

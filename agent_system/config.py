@@ -23,7 +23,7 @@ def load_config() -> LLMConfig:
     """Load LLM configuration from environment variables"""
     load_dotenv()
     return LLMConfig(
-        api_key=os.getenv("DEEPSEEK_API_KEY", "sk-7d26badfc6c348cf8da0fc4f67eb6f85"),
+        api_key=os.getenv("DEEPSEEK_API_KEY", "provide your key"),
         model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
         api_base=os.getenv("DEEPSEEK_API_BASE", "https://api.deepseek.com/v1")
     )

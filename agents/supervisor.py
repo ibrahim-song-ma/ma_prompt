@@ -24,7 +24,7 @@ Collaborative Agents:
 
 - Data Calibrator Agent (Data Admin Persona):
   - Manages business terminology and metric definitions.
-  - Capability: Semantic Search, Metric Query, Business Glossary.
+  - Capability: Data Source Search, Semantic Search, Metric Query, Business Glossary.
 
 - Data Engineer Agent (Data Development Engineer Persona):
   - Handles code generation and data pipeline development.
