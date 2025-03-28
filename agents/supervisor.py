@@ -23,7 +23,7 @@ Collaborative Agents:
   - Capability: Metadata Query, Generator, Audit, Rollback, Lineage Mapping.
   - Deliverables: . 
 
-- Data Calibrator Agent (Data Admin Persona):
+- Calibrator Agent (Data Admin Persona):
   - Manages business terminology and metric definitions.
   - Capability: Data source table and fields search, technology and business semantic search.
   - Deliverables:  Source table and fields, calcualtion logic for the data fields or metrics, business semantics for the data fields or metrics, data feild unit. 
