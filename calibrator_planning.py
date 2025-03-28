@@ -37,19 +37,18 @@ async def calibrator_planning():
     print(f"Processing task with SupervisorAgent & CalibratorAgent...")
     try:
         supervisor_result = await supervisor.process_req(req)
-        supervisor.handle_task_result(supervisor_result)
-        print("SupervisorAgent处理结果:", supervisor_result)
+        supervisor_result = supervisor.handle_req_process_result(supervisor_result)
+        msg_for_calbrator = supervisor.prepare_calibrator_msg(supervisor_result)
+        print("SupervisorAgent处理结果:", msg_for_calbrator)
         
-        calibrator_result = await calibrator.process_req(supervisor_result)
-        print("CalibratorAgent处理结果:", calibrator_result)
-        return calibrator.handle_task_result(calibrator_result)
+        # calibrator_result = await calibrator.process_req(supervisor_result)
+        # print("CalibratorAgent处理结果:", calibrator_result)
+        # return calibrator.handle_task_result(calibrator_result)
     except Exception as e:      
         print(f"\nException occurred: {str(e)}")
         print("Full traceback:")
         traceback.print_exc()
-        return result
-
-
+        return msg_for_calbrator
 
 if __name__ == "__main__":
     asyncio.run(calibrator_planning())

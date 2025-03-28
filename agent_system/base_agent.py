@@ -55,7 +55,7 @@ class BaseAgent:
         self.add_message("user", req)
         
         if self.llm:
-            print(f"\nCalling LLM with tools: {json.dumps(tools, indent=2)}")
+            #print(f"\nCalling LLM with tools: {json.dumps(tools, indent=2)}")
             print(f"Tool choice: {tool_choice}")
             
             try:
@@ -144,46 +144,5 @@ class BaseAgent:
     def clear_messages(self):
         self.messages = []
 
-    def handle_task_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle and print task result with error checking and debugging info"""
-        try:
-            # Print task plan
-            print("\nTask Plan Generated:")
-            print(json.dumps(result, indent=2, ensure_ascii=False))
-            
-            # Check for errors
-            if result.get("status") == "error":
-                print(f"\nError: {result.get('message', 'Unknown error')}")
-                print("Please try again or check the system configuration.")
-                
-                # Print raw LLM response for debugging
-                print("\nRaw LLM Response for debugging:")
-                if "raw_response" in result:
-                    print(json.dumps(result["raw_response"], indent=2))
-                else:
-                    print("No raw response available")
-                
-                # Print full processing result
-                print("\nFull processing result:")
-                print(json.dumps(result, indent=2))
-                
-            # Print task steps if available
-            # if "plan" in result:
-            #     print("\nTask Steps:")
-            #     for step in result["plan"]:
-            #         print(f"- Step {step.get('step', 'N/A')}: {step.get('task', 'N/A')} -> {step.get('assigned_to', 'N/A')}")
-            
-            # # Print agent assignments if available
-            # if "assignments" in result:
-            #     print("\nAgent Assignments:")
-            #     for agent, tasks in result["assignments"].items():
-            #         print(f"- {agent}:")
-            #         for task in tasks:
-            #             print(f"  * {task}")
-                        
-        except Exception as e:
-            print(f"\nException occurred: {str(e)}")
-            print("Full traceback:")
-            traceback.print_exc()
-            
-        return result
+
+

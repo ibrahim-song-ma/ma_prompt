@@ -36,7 +36,7 @@ class AgentSystem:
             llm=self.llm
         )
         
-        self.data_calibration = DataCalibrationAgent(
+        self.data_calibration = CalibratorAgent(
             config=AgentConfig(
                 name="Data Calibration", 
                 description="Data Administrator", 

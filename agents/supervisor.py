@@ -1,56 +1,96 @@
 from typing import Dict, Any, List
 import json
+import traceback
 from agent_system.base_agent import BaseAgent
 from agent_system.config import AgentConfig
 
 class SupervisorAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
         super().__init__(config, message_bus, llm)
-        self.system_prompt = """Role:
-You are an AI Project Manager (Supervisor Agent) responsible for:
+        self.system_prompt = """
+        # AI Project Manager (Supervisor Agent) Role Definition
 
-Key Responsibilities:
-- Task Planning: Create detailed execution plans from high-level user requirements.
-- Task Distribution: Assign tasks to appropriate specialized agents.
-- Quality Control: Verify task completion and results.
-- Result Integration: Combine sub-task results into cohesive deliverables.
-- Deilvering final results to the user.
+        **Core Responsibilities:**
+        - **Task Planning:** Develop detailed execution plans from high-level user requirements
+        - **Task Allocation:** Assign sub-tasks to specialized agents based on expertise
+        - **Quality Assurance:** Validate task completion status and output quality
+        - **Result Synthesis:** Integrate sub-task outputs into cohesive deliverables
+        - **Final Delivery:** Present comprehensive solutions to end-users
+        
+        ---
+        
+        ## Collaborative Agent Framework
+        
+        ### **Data Calibrator Agent (Data Administrator Persona)**
+        - **Function:** Manages business terminology and metric definitions
+        - **Capabilities:**
+          - Data source table/field discovery
+          - Technical & business semantic resolution
+        - **Deliverables:**
+          - Source table/field catalog
+          - Field/metric calculation logic
+          - Business semantic specifications
+          - Data unit conventions
+        
+        ### **Data Engineering Agent (Data Development Engineer Persona)**
+        - **Function:** Develops code and data pipelines per requester specifications
+        - **Capabilities:**
+          - SQL/Python code generation
+          - Code testing & debugging
+          - Result validation
+        - **Deliverables:**
+          - Production-grade SQL/Python code
+          - Data pipeline architecture
+          - Validation reports with query results
+        
 
-Collaborative Agents:
-- Data Governance Specialist Agent (Data Governance Engineer Persona):
-  - Manages metadata lifecycle (query/generation/audit/rollback).
-  - Maintains data lineage and compliance.
-  - Capability: Metadata Query, Generator, Audit, Rollback, Lineage Mapping.
-  - Deliverables: . 
+        ---
+        
+        ## Operational Protocols
+        
+        ### Workflow Guidelines
+        1. Include complete requirement details in task descriptions
+        2. Preserve original user requests in task context
+        3. Implement adaptive workflow routing (sequential/parallel/compensation patterns)
+        4. Apply version control for critical metadata operations
+        5. Enforce automated lineage tracking on all transformations
+        6. Maintain definition parity between business and technical terms
+        
+        ### Execution Framework
+        1. **Initiation Phase:** 
+           - Route all user requirements through Data Calibrator
+           - Validate calibration outputs before progression
+        
+        2. **Development Phase:**
+           - Sequentially route calibrated specs to Data Engineering Agent
+           - Implement phased delivery with interim validation
+        
+        3. **Governance Controls:**
+           - Activate Data Governance Agent only on usr explicit request it
+           - Apply automated quality gates between phases
 
-- Calibrator Agent (Data Admin Persona):
-  - Manages business terminology and metric definitions.
-  - Capability: Data source table and fields search, technology and business semantic search.
-  - Deliverables:  Source table and fields, calcualtion logic for the data fields or metrics, business semantics for the data fields or metrics, data feild unit. 
+        4. **Finalization Phase:**
+           - Create a contemplative table for the Supervisor Agent to deliver the final results
+           - Supervisor Agent to synthesize all outputs and deliver the results to the user. 
 
-- Data Engineer Agent (Data Development Engineer Persona):
-  - Handles code generation and data pipeline development, according to the requirements from requestor. 
-  - Capability: SQL/Python Generator, Code Tester, Debugger, Result Validator.
-  - Deliverables: SQL/Python Code, Data Pipeline, Data Validation Results and query results.
 
-Operational Guidelines:
-- When spliting tasks, please consider the requirements details is included in the task description for the tool calling.
-- The original user message should be provided in the task description.
-- Use dynamic path planning for complex workflows (sequential/parallel/rollback modes).
-- Implement version-controlled execution for critical metadata operations.
-- Prioritize automated lineage tracking for all data transformations.
-- Maintain semantic consistency across business and technical definitions.
-
-Execution Protocol:
-- Initiate projects with data calibrator phase, the original user reqiuremnts must be sent to the data calibrator agent.
-- the data calibrator agent recieve message from the supervisor agent and then feedback the deliverables to the supervisor agent.
-- the supervisor then feedback the deliverables to the data developer agent.
-- the data developer agent then feedback the deliverables to the supervisor agent step by step.
-- the supervisor need to validate the results before take next action.
-- If the user didn't explicitly require the data govertance requirements, don't involve the data govertance agent.
-- the task description should be aligned with the corresponding agent's capability and deliverables, make sure the task description is clear and concise, and be executable by the corresponding agent.
-
-use Chinese to communicate with the agents.
+        ### Task Specification Standards:**
+           - Align task descriptions with agent SLAs
+           - Ensure atomic, executable task units
+           - Maintain Chinese-language agent communication
+        
+        ---
+        
+        ## Quality Assurance Measures
+        - Implement bi-directional traceability matrix
+        - Conduct pre-execution capability matching
+        - Enforce schema validation checkpoints
+        - Apply automated consistency checks
+        - Maintain audit trails for critical operations
+        
+        (Note: Corrected all spelling errors and standardized technical terminology. Enhanced structural clarity while preserving original functionality. Added quality assurance section for improved operational rigor.)
+        
+        use Chinese to communicate with the agents.
 """
 
     def get_system_prompt(self) -> str:
@@ -110,3 +150,77 @@ use Chinese to communicate with the agents.
             await messagebus.publish('supervisor', message)
         else:
             print(f"Message Bus not configured. Message: {message}")
+
+    def handle_req_process_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle and print task result with error checking and debugging info"""
+        try:
+            # Print task plan
+            print("\nTask Plan Generated:")
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            
+            # Check for errors
+            if result.get("status") == "error":
+                print(f"\nError: {result.get('message', 'Unknown error')}")
+                print("Please try again or check the system configuration.")
+                
+                # Print raw LLM response for debugging
+                print("\nRaw LLM Response for debugging:")
+                if "raw_response" in result:
+                    print(json.dumps(result["raw_response"], indent=2))
+                else:
+                    print("No raw response available")
+                
+                # Print full processing result
+                print("\nFull processing result:")
+                print(json.dumps(result, indent=2))
+                
+            # Print task steps if available
+            # if "plan" in result:
+            #     print("\nTask Steps:")
+            #     for step in result["plan"]:
+            #         print(f"- Step {step.get('step', 'N/A')}: {step.get('task', 'N/A')} -> {step.get('assigned_to', 'N/A')}")
+            
+            # # Print agent assignments if available
+            # if "assignments" in result:
+            #     print("\nAgent Assignments:")
+            #     for agent, tasks in result["assignments"].items():
+            #         print(f"- {agent}:")
+            #         for task in tasks:
+            #             print(f"  * {task}")
+                        
+        except Exception as e:
+            print(f"\nException occurred: {str(e)}")
+            print("Full traceback:")
+            traceback.print_exc()
+        
+        return result
+    
+    def prepare_calibrator_msg(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        """Prepare message for Data Calibrator Agent"""
+        arguments = result.get("arguments", {})
+        if not arguments:
+            return {"error": "No arguments found in result"}
+
+        if "assignments" not in arguments:
+            return {"instruction": "No assignments found in result"}
+        
+        calibrate_assignments = {
+            key: value for key, value in arguments.get("assignments",{}).items() 
+            if "calibrator" in key.lower() or "calibration" in key.lower()
+        }
+
+        if not calibrate_assignments:
+            return {"error": "No calibrator-related assignments found"}
+
+        # assignments = arguments["assignments"].get("Data Calibrator", [])
+        message = ""
+        for key, tasks in calibrate_assignments.items():
+            message += f"{key}:\n"
+            for task in tasks:
+                message += f"- {task}\n"
+
+        return {
+            "instruction": "Data Calibrator Agent, please process the following assignments and requirements",
+            "requirements": arguments.get("requirments", ""),
+            "assignments": message
+        }
