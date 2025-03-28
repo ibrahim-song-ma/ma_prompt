@@ -35,10 +35,9 @@ Focus on maintaining accurate and consistent data definitions while supporting b
     def get_system_prompt(self) -> str:
         return self.system_prompt
 
-    async def process_task(self, task: str) -> Dict[str, Any]:
+    async def process_req(self, task: str) -> Dict[str, Any]:
         prompt = f"Given the task: {task}\nPlease analyze this task and create a detailed execution plan with steps and assignments."
         
-        # 定义工具调用结构
         tools = [
             {
                 "type": "function",
@@ -76,14 +75,12 @@ Focus on maintaining accurate and consistent data definitions while supporting b
             }
         ]
     
-        # 使用父类的函数调用方法
-        result = await self.process_task_with_tool_calling(
+        result = await self.process_req_with_tool_calling(
             task=prompt,
             tools=tools,
             tool_choice={"type": "function", "function": {"name": "create_execution_plan"}}
         )
         
-        # 如果函数调用出错，直接返回错误
         if result.get("status") == "error" or "error" in result:
             error_message = result.get("error", "Unknown error in function calling")
             return {
@@ -92,9 +89,21 @@ Focus on maintaining accurate and consistent data definitions while supporting b
                 "message": f"Failed to generate task plan: {error_message}"
             }
     
-        # 添加状态信息
         result["status"] = "in_progress"
     
         return result
+    
+    def subscribe(self, topic: str):
+        self.message_bus.subscribe(topic, self.handle_message)
+
+    def unsubscribe_from(self, topic: str):
+        self.message_bus.unsubscribe_all(topic)
+
+    async def handle_message(self, message: Dict[str, Any]) -> None:
+        print(f"Calibrator Recieved MSG: {message}")
+        self.add_message(role="user", content=message.get("content", ""))
+
+
+
 
     # Mock methods removed as they are no longer needed 

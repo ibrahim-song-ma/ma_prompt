@@ -43,7 +43,7 @@ Focus on maintaining high-quality metadata while supporting data governance init
     def get_system_prompt(self) -> str:
         return self.system_prompt
 
-    async def process_task(self, task: str) -> Dict[str, Any]:
+    async def process_req(self, task: str) -> Dict[str, Any]:
         """Process a metadata management task using LLM for thinking and mock tools for execution"""
         # 构建提示词，让LLM思考如何处理元数据任务
         prompt = f"""Given the task: {task}

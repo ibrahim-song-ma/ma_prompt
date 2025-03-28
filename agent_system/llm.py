@@ -114,8 +114,8 @@ class DeepSeekLLM:
                 result["arguments"] = arguments
                 result["source"] = "tool_call"
                 
-                print(f"\nTool call: {tool_name}")
-                print(f"Arguments: {json.dumps(arguments, indent=2, ensure_ascii=False)}")
+                # print(f"\nTool call: {tool_name}")
+                # print(f"Arguments: {json.dumps(arguments, indent=2, ensure_ascii=False)}")
                 
                 return result
                 

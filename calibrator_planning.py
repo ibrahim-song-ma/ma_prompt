@@ -26,33 +26,30 @@ async def calibrator_planning():
         llm_config=llm_config
     )
     llm = DeepSeekLLM(llm_config)
+
     message_bus = MessageBus()
     
     supervisor = SupervisorAgent(config=supervisor_agent_config, message_bus=message_bus, llm=llm)
     calibrator = CalibratorAgent(config=calibrator_agent_config, message_bus=message_bus, llm=llm)
 
-    
-    # async def handle_supervisor_message(message: Dict[str, Any]) -> None:
-    #     """处理来自Supervisor的消息"""
-    #     print(f"收到Supervisor消息: {message}")
-    #     # 在这里添加具体的消息处理逻辑
-    #     # calibrator.add_message(role="user", content=message.get("content", ""))
+    req = """支撑省内集团客户部对外大数据服务合作项目，需要用户行业网关短信收发时间明细数据的支撑。需包含集团客户名称，行业子类型名称，服务代码，第三方电话，短信发送状态，处理结束日期，处理结束时间，统计日期等信息。"""
 
-    # # 订阅Supervisor的消息
-    # message_bus.subscribe("supervisor", handle_supervisor_message)
+    print(f"Processing task with SupervisorAgent & CalibratorAgent...")
+    try:
+        supervisor_result = await supervisor.process_req(req)
+        supervisor.handle_task_result(supervisor_result)
+        print("SupervisorAgent处理结果:", supervisor_result)
+        
+        calibrator_result = await calibrator.process_req(supervisor_result)
+        print("CalibratorAgent处理结果:", calibrator_result)
+        return calibrator.handle_task_result(calibrator_result)
+    except Exception as e:      
+        print(f"\nException occurred: {str(e)}")
+        print("Full traceback:")
+        traceback.print_exc()
+        return result
 
-    # # 通过message_bus直接发布消息
-    # await message_bus.publish("supervisor", {
-    #     "content": "supervisor to calibrator: 需要校准数据的任务描述"
-    # }, sender="supervisor")
-    
-    # # 给消息处理留出时间
-    # await asyncio.sleep(0.1)
-    
-    # # 打印Calibrator收到的消息
-    # print("Calibrator收到的消息:", calibrator.get_messages())
-    
-    return
+
 
 if __name__ == "__main__":
     asyncio.run(calibrator_planning())

@@ -57,10 +57,10 @@ use Chinese to communicate with the agents.
         """获取SupervisorAgent的系统提示词"""
         return self.system_prompt
 
-    async def process_task(self, task: str) -> Dict[str, Any]:
+    async def process_req(self, req: str) -> Dict[str, Any]:
         """Process a project management task using LLM for thinking and function calling"""
         # 构建提示词，让LLM思考如何处理任务
-        prompt = f"Given the task: {task}\nPlease analyze this task and create a detailed execution plan with steps and execute step by step."
+        prompt = f"Given the task: {req}\nPlease analyze this task and create a detailed execution plan with steps and execute step by step."
         
         # 定义工具调用结构
         tools = [
@@ -102,7 +102,11 @@ use Chinese to communicate with the agents.
 
         tool_choice = {"type": "function", "function": {"name": "create_supervisor_execution_plan"}}
         
-        # 调用基类的通用方法
-        return await self.process_task_with_error_handling(task=prompt, tools=tools, tool_choice=tool_choice)
+        return await super().process_req(req=prompt, tools=tools, tool_choice=tool_choice)
 
-    # Mock methods removed as they are no longer needed
+    async def publish(self, topic: str, message: str):
+        messagebus = self.message_bus
+        if messagebus:
+            await messagebus.publish('supervisor', message)
+        else:
+            print(f"Message Bus not configured. Message: {message}")

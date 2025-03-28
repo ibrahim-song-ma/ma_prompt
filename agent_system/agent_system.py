@@ -10,12 +10,10 @@ from agents.data_developer import DataDeveloperAgent
 
 class AgentSystem:
     def __init__(self):
-        # 初始化配置和共享组件
         self.config = load_config()
         self.message_bus = MessageBus()
         self.llm = DeepSeekLLM(self.config)
         
-        # 初始化所有Agent
         self.supervisor = SupervisorAgent(
             config=AgentConfig(
                 name="Supervisor", 
@@ -85,11 +83,11 @@ class AgentSystem:
         results = {}
         
         # 1. 启动Supervisor
-        supervisor_result = await self.supervisor.process_task(task)
+        supervisor_result = await self.supervisor.process_req(task)
         results["supervisor"] = supervisor_result
         
         # 2. 并行执行元数据和数据口径任务
-        metadata_task = asyncio.create_task(self.metadata_steward.process_task(task))
+        metadata_task = asyncio.create_task(self.metadata_steward.process_req(task))
         calibration_task = asyncio.create_task(self.data_calibration.process_task(task))
         
         metadata_result, calibration_result = await asyncio.gather(
@@ -101,7 +99,7 @@ class AgentSystem:
         results["data_calibration"] = calibration_result
         
         # 3. 最后执行数据开发任务
-        development_result = await self.data_developer.process_task(task)
+        development_result = await self.data_developer.process_req(task)
         results["data_developer"] = development_result
         
         return results

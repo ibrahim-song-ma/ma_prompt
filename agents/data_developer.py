@@ -45,7 +45,7 @@ Focus on producing high-quality, maintainable, and efficient code while followin
     def get_system_prompt(self) -> str:
         return self.system_prompt
 
-    async def process_task(self, task: str) -> Dict[str, Any]:
+    async def process_req(self, task: str) -> Dict[str, Any]:
         """Process a development task using LLM for thinking and mock tools for execution"""
         # 构建提示词，让LLM思考如何处理开发任务
         prompt = f"""Given the task: {task}

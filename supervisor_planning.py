@@ -26,12 +26,12 @@ async def supervisor_planning():
     supervisor = SupervisorAgent(config=agent_config, message_bus=message_bus, llm=llm)
     
     # 任务描述
-    task = """支撑省内集团客户部对外大数据服务合作项目，需要用户行业网关短信收发时间明细数据的支撑。需包含集团客户名称，行业子类型名称，服务代码，第三方电话，短信发送状态，处理结束日期，处理结束时间，统计日期等信息。"""
+    req = """支撑省内集团客户部对外大数据服务合作项目，需要用户行业网关短信收发时间明细数据的支撑。需包含集团客户名称，行业子类型名称，服务代码，第三方电话，短信发送状态，处理结束日期，处理结束时间，统计日期等信息。"""
     
     # 使用SupervisorAgent处理任务
     print(f"Processing task with SupervisorAgent...")
     try:
-        result = await supervisor.process_task(task)
+        result = await supervisor.process_req(req)
         return supervisor.handle_task_result(result)
     except Exception as e:
         print(f"\nException occurred: {str(e)}")

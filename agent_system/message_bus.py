@@ -8,13 +8,15 @@ class MessageBus:
         self.message_history: List[Dict[str, Any]] = []
 
     def subscribe(self, topic: str, callback: Callable):
-        """订阅特定主题"""
         self.subscribers[topic].append(callback)
 
     def unsubscribe(self, topic: str, callback: Callable):
-        """取消订阅"""
         if topic in self.subscribers:
             self.subscribers[topic].remove(callback)
+    
+    def unsubscribe_all(self, topic: str):
+        if topic in self.subscribers:
+            self.subscribers[topic] = []
 
     async def publish(self, topic: str, message: Dict[str, Any], sender: str = None):
         """发布消息到特定主题"""
