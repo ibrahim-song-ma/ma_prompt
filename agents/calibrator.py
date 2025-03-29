@@ -28,6 +28,7 @@ class CalibratorAgent(BaseAgent):
         - Look up the data source table technology and business semantics - API1
         - Look up the data field calculation logic - API2
         - Look up the data field business definition - API3 
+        - Sythesize the results of the above three APIs and generate the final result - function1
 
         ---
         
@@ -104,8 +105,10 @@ class CalibratorAgent(BaseAgent):
                                     "type": "object",
                                     "properties": {
                                         "step": {"type": "integer"},
+                                        # "parameters": {}
                                         "task": {"type": "string"},
-                                        "API": {"type": "string"}
+                                        "toold": {"type": "string",
+                                                  "enum": ["API1", "API2", "API3", "function1"]},
                                     },
                                     "required": ["step", "task", "assigned_to"]
                                 }
@@ -124,6 +127,3 @@ class CalibratorAgent(BaseAgent):
 
     
 
-
-
-    # Mock methods removed as they are no longer needed 
