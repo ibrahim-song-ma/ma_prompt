@@ -20,14 +20,14 @@ class CalibratorAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
         super().__init__(config, message_bus, llm)
         self.tools = CalibrationTools()
-        self.system_prompt = """You are an AI Project Manager (Supervisor Agent) now, the Role Definition:
+        self.system_prompt = """You are an AI Data Calibator (Data Calibrator Agent) now:
         **Core Responsibilities:**
-        - Data source table tech semantic discovery. 
-        - Data field tech semantic discovery.
+        - Data source table technology and business semantic discovery. 
+        - Data field technology and business semantic discovery.
         ***Core Capabilities:***
-        - Look up the data source table and business semantics - API1
-        - Look up the data field and business semantics - API2
-        - ??? - API3
+        - Look up the data source table technology and business semantics - API1
+        - Look up the data field calculation logic - API2
+        - Look up the data field business definition - API3 
 
         ---
         
@@ -85,8 +85,8 @@ class CalibratorAgent(BaseAgent):
     def get_system_prompt(self) -> str:
         return self.system_prompt
 
-    async def process_req(self, task: str) -> Dict[str, Any]:
-        prompt = f"Given the task: {task}\nPlease analyze this task and create a detailed execution plan with steps and assignments."
+    async def process_req(self, req: str) -> Dict[str, Any]:
+        prompt = f"Given the task: {req}\nPlease analyze this task and create a detailed execution plan with steps and assignments."
         
         tools = [
             {
@@ -123,7 +123,6 @@ class CalibratorAgent(BaseAgent):
         return await super().process_req(req=prompt, tools=tools, tool_choice=tool_choice)
 
     
-
 
 
 

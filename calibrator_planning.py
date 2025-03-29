@@ -37,14 +37,15 @@ async def calibrator_planning():
     print(f"Processing task with SupervisorAgent & CalibratorAgent...")
     try:
         supervisor_result = await supervisor.process_req(req)
-        supervisor_result = supervisor.handle_req_process_result(supervisor_result)
+        supervisor_result = supervisor.handle_plan_result(supervisor_result)
         msg_for_calbrator = supervisor.prepare_calibrator_msg(supervisor_result)
         print("SupervisorAgent processed results, passing to calibrator:", msg_for_calbrator)
         
-        msg_for_calbrator_str = json.dumps(msg_for_calbrator, ensure_ascii=False, indent=2)
-        calibrator_result = await calibrator.process_req(msg_for_calbrator_str)
+        msg_for_calibrator_str = json.dumps(msg_for_calbrator, ensure_ascii=False, indent=2)
+        calibrator_result = await calibrator.process_req(msg_for_calibrator_str)
+        calibrator_result = calibrator.handle_plan_result(calibrator_result)
         # print("CalibratorAgent处理结果:", calibrator_result)
-        # return calibrator.handle_task_result(calibrator_result)
+        return calibrator_result
     except Exception as e:      
         print(f"\nException occurred: {str(e)}")
         print("Full traceback:")

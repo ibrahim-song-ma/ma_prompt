@@ -82,7 +82,6 @@ class BaseAgent:
                     # print(f"Arguments: {json.dumps(response_data['arguments'], indent=2, ensure_ascii=False)}")
 
                 self.add_message("assistant", str(result))
-                
                 await self.publish_result(result)
                 
                 return result
@@ -115,7 +114,35 @@ class BaseAgent:
             }
         
         result["status"] = "in_progress"
-        return result    
+        return result
+    
+    def handle_plan_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            # Print task plan
+            print("\nPlan Generated:")
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            
+            # Check for errors
+            if result.get("status") == "error":
+                print(f"\nError: {result.get('message', 'Unknown error')}")
+                print("Please try again or check the system configuration.")
+                
+                # Print raw LLM response for debugging
+                print("\nRaw LLM Response for debugging:")
+                if "raw_response" in result:
+                    print(json.dumps(result["raw_response"], indent=2))
+                else:
+                    print("No raw response available")
+                
+                # Print full processing result
+                print("\nFull processing result:")
+                print(json.dumps(result, indent=2))
+        except Exception as e:
+            print(f"\nException occurred: {str(e)}")
+            print("Full traceback:")
+            traceback.print_exc()
+        
+        return result
     
     def get_system_prompt(self) -> str:
         raise NotImplementedError
