@@ -39,9 +39,10 @@ async def calibrator_planning():
         supervisor_result = await supervisor.process_req(req)
         supervisor_result = supervisor.handle_req_process_result(supervisor_result)
         msg_for_calbrator = supervisor.prepare_calibrator_msg(supervisor_result)
-        print("SupervisorAgent处理结果:", msg_for_calbrator)
+        print("SupervisorAgent processed results, passing to calibrator:", msg_for_calbrator)
         
-        # calibrator_result = await calibrator.process_req(supervisor_result)
+        msg_for_calbrator_str = json.dumps(msg_for_calbrator, ensure_ascii=False, indent=2)
+        calibrator_result = await calibrator.process_req(msg_for_calbrator_str)
         # print("CalibratorAgent处理结果:", calibrator_result)
         # return calibrator.handle_task_result(calibrator_result)
     except Exception as e:      

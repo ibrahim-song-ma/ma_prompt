@@ -8,7 +8,7 @@ class SupervisorAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
         super().__init__(config, message_bus, llm)
         self.system_prompt = """
-        # AI Project Manager (Supervisor Agent) Role Definition
+        # You are an AI Project Manager (Supervisor Agent), the Role Definition
 
         **Core Responsibilities:**
         - **Task Planning:** Develop detailed execution plans from high-level user requirements
@@ -19,7 +19,7 @@ class SupervisorAgent(BaseAgent):
         
         ---
         
-        ## Collaborative Agent Framework
+        ## Collaborative Agents
         
         ### **Data Calibrator Agent (Data Administrator Persona)**
         - **Function:** Manages business terminology and metric definitions
@@ -70,7 +70,7 @@ class SupervisorAgent(BaseAgent):
            - Apply automated quality gates between phases
 
         4. **Finalization Phase:**
-           - Create a contemplative table for the Supervisor Agent to deliver the final results
+           - Create a temporary table for the Supervisor Agent to deliver the final results
            - Supervisor Agent to synthesize all outputs and deliver the results to the user. 
 
 
@@ -212,7 +212,6 @@ class SupervisorAgent(BaseAgent):
         if not calibrate_assignments:
             return {"error": "No calibrator-related assignments found"}
 
-        # assignments = arguments["assignments"].get("Data Calibrator", [])
         message = ""
         for key, tasks in calibrate_assignments.items():
             message += f"{key}:\n"
