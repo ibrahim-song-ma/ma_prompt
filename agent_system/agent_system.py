@@ -6,7 +6,7 @@ from .message_bus import MessageBus
 from agents.supervisor import SupervisorAgent
 from agents.metadata_steward import MetadataStewardAgent
 from agents.calibrator import CalibratorAgent
-from agents.data_developer import DataDeveloperAgent
+from agents.developer import DataDeveloperAgent
 
 class AgentSystem:
     def __init__(self):
