@@ -1,120 +1,192 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import json
 from agent_system.base_agent import BaseAgent
 from agent_system.config import AgentConfig
 
-class DevelopmentTools:
-    """Mock tools for data development"""
+class DataEngineeringTools:
+    """Tools for data development and pipeline creation"""
+    
     @staticmethod
-    def generate_code(description: str) -> Dict[str, Any]:
+    def generate_pipeline(requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate data pipeline code based on requirements"""
         return {
-            "python": "def process_data(df): return df.groupby('category').sum()",
-            "sql": "SELECT category, SUM(amount) FROM sales GROUP BY category"
+            "python": {
+                "extract": "def extract_data(source): return pd.read_csv(source)",
+                "transform": "def transform_data(df): return df.groupby('category').sum()",
+                "load": "def load_data(df, target): df.to_csv(target)"
+            },
+            "sql": {
+                "extract": "SELECT * FROM source_table",
+                "transform": "SELECT category, SUM(amount) FROM sales GROUP BY category",
+                "load": "INSERT INTO target_table SELECT * FROM transformed_data"
+            }
         }
 
     @staticmethod
-    def test_code(code: str) -> Dict[str, Any]:
-        return {"status": "passed", "preview": [{"category": "A", "sum": 100}]}
+    def validate_pipeline(pipeline: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate pipeline code structure and logic"""
+        return {
+            "valid": True,
+            "issues": [],
+            "optimizations": [
+                "Consider adding error handling",
+                "Add logging for pipeline steps"
+            ]
+        }
 
     @staticmethod
-    def validate_code(code: str) -> Dict[str, Any]:
-        return {"valid": True, "issues": []}
+    def test_pipeline(pipeline: Dict[str, Any], sample_data: Optional[Dict] = None) -> Dict[str, Any]:
+        """Test pipeline with sample data"""
+        return {
+            "status": "passed",
+            "execution_time": 0.5,
+            "memory_usage": "100MB",
+            "sample_output": [{"category": "A", "total": 100}]
+        }
 
     @staticmethod
-    def query_results(query_id: str) -> Dict[str, Any]:
-        return {"status": "completed", "rows": 100, "sample": [{"id": 1, "value": "test"}]}
+    def optimize_pipeline(pipeline: Dict[str, Any]) -> Dict[str, Any]:
+        """Optimize pipeline performance"""
+        return {
+            "optimized_code": {
+                "python": "def optimized_transform(df): return df.groupby('category').agg({'amount': 'sum'})",
+                "sql": "SELECT category, SUM(amount) AS total FROM sales GROUP BY category"
+            },
+            "improvements": [
+                "Added explicit column selection",
+                "Optimized aggregation function"
+            ]
+        }
 
 class DataDeveloperAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
         super().__init__(config, message_bus, llm)
-        self.tools = DevelopmentTools()
-        self.system_prompt = """You are an AI Data Engineer (Data Development Agent) responsible for:
-1. Generating efficient and reliable code
-2. Testing and validating implementations
-3. Optimizing data processing
-4. Ensuring code quality and performance
+        self.tools = DataEngineeringTools()
+        self.system_prompt = """
+        # You are an AI Data Engineering Agent
 
-Your toolbox includes:
-- Code Generation Tool: Create Python and SQL code from requirements
-- Code Testing Tool: Automated testing and data preview
-- Code Validation Tool: Quality checks and error detection
-- Result Query Tool: Execute and preview results
+        **Core Responsibilities:**
+        - Design and implement data pipelines
+        - Generate efficient and reliable code (Python/SQL)
+        - Test and validate data transformations
+        - Optimize data processing performance
+        - Ensure data quality and pipeline reliability
 
-Focus on producing high-quality, maintainable, and efficient code while following best practices."""
+        ---
+        
+        ## Collaborative Agents
+        
+        ### **Supervisor Agent (Project Manager Persona)**
+        - **Function:** Manages the project, coordinates tasks, and ensures project goals are met.
+        - **Collaboration:**
+            - Receive task assignments from Supervisor
+            - Report progress and issues to Supervisor
+            - Deliver final results to Supervisor
+
+
+        ---
+        
+        ## Operational Protocols
+        
+        ### Workflow Guidelines
+        1. Receive task assignments from Supervisor
+        2. Design pipeline architecture
+        3. Implement and test pipeline
+        4. Optimize performance
+        5. Deliver results to Supervisor
+        6. For each step, the result is delivered to the Supervisor for review and approval.
+        7. Adjust the workflow as needed based on feedback and requirements.
+
+        ### Execution Framework
+        1. **Initiation Phase:** 
+           - Receive task from Supervisor
+        
+        2. **Development Phase:**
+           - Design pipeline architecture
+           - Implement pipeline components
+           - Test and validate pipeline
+
+        3. **Optimization Phase:**
+           - Analyze performance
+           - Implement optimizations
+           - Validate optimizations
+
+        4. **Finalization Phase:**
+           - Package and document pipeline
+           - Deliver results to Supervisor
+           - Provide maintenance guidelines
+
+        ### Task Specification Standards:**
+           - Align task descriptions with agent SLAs
+           - Ensure atomic, executable task units
+           - Maintain Chinese-language agent communication
+        
+        use Chinese to communicate with the agents.
+        """
 
     def get_system_prompt(self) -> str:
         return self.system_prompt
 
     async def process_req(self, task: str) -> Dict[str, Any]:
-        """Process a development task using LLM for thinking and mock tools for execution"""
-        # 构建提示词，让LLM思考如何处理开发任务
-        prompt = f"""Given the task: {task}
-        Please analyze this task from a data development perspective and create:
-        1. A code generation plan (what code needs to be written)
-        2. A testing strategy
-        3. Validation requirements
-        
-        Respond in JSON format with the following structure:
-        {{
-            "code_plan": {{
-                "language": "<python|sql>",
-                "logic": "<pseudo_code_or_logic>",
-                "requirements": ["<requirement>"],
-                "dependencies": ["<dependency>"],
-                "optimization_points": ["<point>"],
-            }},
-            "test_strategy": {{
-                "test_cases": ["<test_case>"],
-                "data_scenarios": ["<scenario>"],
-                "validation_points": ["<point>"]
-            }},
-            "reasoning": "<your thought process>"
-        }}
-        """
-        
-        # 调用LLM进行思考
-        self.add_message("user", prompt)
-        llm_response = await self.llm.generate(
-            system_prompt=self.get_system_prompt(),
-            messages=self.messages,
-            temperature=0.7
-        )
-        
-        try:
-            # 解析LLM响应
-            result = json.loads(llm_response)
-            
-            # 执行开发操作（使用Mock工具）
-            code_description = result.get("code_plan", {}).get("logic", "Calculate sales by category")
-            mock_code = self.tools.generate_code(code_description)
-            
-            # 执行测试和验证
-            test_results = self.tools.test_code(str(mock_code))
-            validation_results = self.tools.validate_code(str(mock_code))
-            
-            # 组合结果
-            final_result = {
-                "generated_code": mock_code,
-                "test_results": test_results,
-                "validation": validation_results,
-                "development_plan": result.get("code_plan", {}),
-                "test_strategy": result.get("test_strategy", {}),
-                "reasoning": result.get("reasoning", ""),
-                "status": "completed"
+        """Process a data engineering task using LLM for planning and function calling"""
+        # Define tools for development planning
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "create_development_plan",
+                    "description": "创建数据工程开发计划",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "requirements": {"type": "string"},
+                            "architecture": {
+                                "type": "object",
+                                "properties": {
+                                    "components": {"type": "array", "items": {"type": "string"}},
+                                    "data_flow": {"type": "string"},
+                                    "dependencies": {"type": "array", "items": {"type": "string"}}
+                                }
+                            },
+                            "implementation": {
+                                "type": "object",
+                                "properties": {
+                                    "steps": {"type": "array", "items": {"type": "string"}},
+                                    "languages": {"type": "array", "items": {"type": "string"}},
+                                    "requirements": {"type": "array", "items": {"type": "string"}}
+                                }
+                            },
+                            "testing": {
+                                "type": "object",
+                                "properties": {
+                                    "test_cases": {"type": "array", "items": {"type": "string"}},
+                                    "data_scenarios": {"type": "array", "items": {"type": "string"}},
+                                    "validation_points": {"type": "array", "items": {"type": "string"}}
+                                }
+                            },
+                            "optimization": {
+                                "type": "object",
+                                "properties": {
+                                    "potential_improvements": {"type": "array", "items": {"type": "string"}},
+                                    "performance_targets": {"type": "array", "items": {"type": "string"}}
+                                }
+                            },
+                            "reasoning": {"type": "string"}
+                        },
+                        "required": ["architecture", "implementation", "testing", "optimization"]
+                    }
+                }
             }
-            
-            # 记录响应
-            self.add_message("assistant", str(final_result))
-            return final_result
-            
-        except json.JSONDecodeError:
-            # 如果LLM响应不是有效的JSON，返回模拟数据
-            fallback_response = {
-                "generated_code": self.tools.generate_code("Calculate sales by category"),
-                "test_results": self.tools.test_code("mock_code"),
-                "validation": self.tools.validate_code("mock_code"),
-                "status": "completed",
-                "error": "Failed to parse LLM response"
-            }
-            self.add_message("assistant", str(fallback_response))
-            return fallback_response
+        ]
+
+        tool_choice = {"type": "function", "function": {"name": "create_development_plan"}}
+        
+        # Process task with tools
+        return await super().process_req(req=task, tools=tools, tool_choice=tool_choice)
+
+    async def publish(self, topic: str, message: str):
+        """Publish messages to message bus"""
+        if self.message_bus:
+            await self.message_bus.publish('data_developer', message)
+        else:
+            print(f"Message Bus not configured. Message: {message}")
