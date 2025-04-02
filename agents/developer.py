@@ -8,7 +8,7 @@ class DataEngineeringTools:
     
     @staticmethod
     def generate_pipeline(requirements: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate data pipeline code based on requirements"""
+        """Generate data pipeline code based on requirements, supporting both Python and SQL"""
         return {
             "python": {
                 "extract": "def extract_data(source): return pd.read_csv(source)",
@@ -24,7 +24,7 @@ class DataEngineeringTools:
 
     @staticmethod
     def validate_pipeline(pipeline: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate pipeline code structure and logic"""
+        """Validate pipeline code structure and logic, identify potential issues and optimization suggestions"""
         return {
             "valid": True,
             "issues": [],
@@ -36,7 +36,7 @@ class DataEngineeringTools:
 
     @staticmethod
     def test_pipeline(pipeline: Dict[str, Any], sample_data: Optional[Dict] = None) -> Dict[str, Any]:
-        """Test pipeline with sample data"""
+        """Test pipeline with sample data, return execution status, performance metrics and sample output"""
         return {
             "status": "passed",
             "execution_time": 0.5,
@@ -46,7 +46,7 @@ class DataEngineeringTools:
 
     @staticmethod
     def optimize_pipeline(pipeline: Dict[str, Any]) -> Dict[str, Any]:
-        """Optimize pipeline performance"""
+        """Optimize pipeline performance, provide optimized code and improvement suggestions"""
         return {
             "optimized_code": {
                 "python": "def optimized_transform(df): return df.groupby('category').agg({'amount': 'sum'})",
@@ -57,6 +57,16 @@ class DataEngineeringTools:
                 "Optimized aggregation function"
             ]
         }
+
+    @staticmethod
+    def get_tool_description(method_name: str) -> str:
+
+        return {
+            "generate_pipeline": "Generate data pipeline code based on requirements, supporting both Python and SQL",
+            "validate_pipeline": "Validate pipeline code structure and logic, identify potential issues and optimization suggestions",
+            "test_pipeline": "Test pipeline with sample data, return execution status, performance metrics and sample output",
+            "optimize_pipeline": "Optimize pipeline performance, provide optimized code and improvement suggestions"
+        }.get(method_name, "Unknown tool")
 
 class DataDeveloperAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
@@ -125,7 +135,12 @@ class DataDeveloperAgent(BaseAgent):
         """
 
     def get_system_prompt(self) -> str:
-        return self.system_prompt
+        # Get descriptions of all tools
+        tools_desc = "\n## Data Engineering Tools\n"
+        for method in ["generate_pipeline", "validate_pipeline", "test_pipeline", "optimize_pipeline"]:
+            tools_desc += f"- {method}: {self.tools.get_tool_description(method)}\n"
+        
+        return self.system_prompt + tools_desc
 
     async def process_req(self, task: str) -> Dict[str, Any]:
         """Process a data engineering task using LLM for planning and function calling"""
