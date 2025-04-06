@@ -1,13 +1,19 @@
-from typing import Dict, Any, List
+from typing import Dict, Any
 import json
 from agent_system.base_agent import BaseAgent
 from agent_system.config import AgentConfig
 
+
 class MetadataTools:
     """Mock tools for metadata management"""
+
     @staticmethod
     def query_metadata(table_name: str) -> Dict[str, Any]:
-        return {"table": table_name, "fields": ["id", "name"], "lineage": ["source_table"]}
+        return {
+            "table": table_name,
+            "fields": ["id", "name"],
+            "lineage": ["source_table"],
+        }
 
     @staticmethod
     def generate_metadata(table_name: str) -> Dict[str, Any]:
@@ -20,6 +26,7 @@ class MetadataTools:
     @staticmethod
     def rollback_metadata(table_name: str, version: str) -> Dict[str, Any]:
         return {"status": "rolled_back", "version": version}
+
 
 class MetadataStewardAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
@@ -67,48 +74,42 @@ Focus on maintaining high-quality metadata while supporting data governance init
             "reasoning": "<your thought process>"
         }}
         """
-        
+
         # 调用LLM进行思考
         self.add_message("user", prompt)
         llm_response = await self.llm.generate(
             system_prompt=self.get_system_prompt(),
             messages=self.messages,
-            temperature=0.7
+            temperature=0.7,
         )
-        
+
         try:
             # 解析LLM响应
             result = json.loads(llm_response)
-            
+
             # 执行元数据操作（使用Mock工具）
             mock_query = self.tools.query_metadata("example_table")
             mock_audit = self.tools.audit_metadata("example_table")
-            
+
             # 组合结果
             final_result = {
-                "metadata_query": {
-                    **result.get("metadata_query", {}),
-                    **mock_query
-                },
-                "metadata_audit": {
-                    **result.get("metadata_audit", {}),
-                    **mock_audit
-                },
+                "metadata_query": {**result.get("metadata_query", {}), **mock_query},
+                "metadata_audit": {**result.get("metadata_audit", {}), **mock_audit},
                 "reasoning": result.get("reasoning", ""),
-                "status": "completed"
+                "status": "completed",
             }
-            
+
             # 记录响应
             self.add_message("assistant", str(final_result))
             return final_result
-            
+
         except json.JSONDecodeError:
             # 如果LLM响应不是有效的JSON，返回模拟数据
             fallback_response = {
                 "metadata_query": self.tools.query_metadata("example_table"),
                 "metadata_audit": self.tools.audit_metadata("example_table"),
                 "status": "completed",
-                "error": "Failed to parse LLM response"
+                "error": "Failed to parse LLM response",
             }
             self.add_message("assistant", str(fallback_response))
             return fallback_response

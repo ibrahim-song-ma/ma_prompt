@@ -1,6 +1,7 @@
-from typing import Dict, Any, List
+from typing import Dict, Any
 from agent_system.base_agent import BaseAgent
 from agent_system.config import AgentConfig
+
 
 class SupervisorAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
@@ -99,7 +100,7 @@ class SupervisorAgent(BaseAgent):
         """Process a project management task using LLM for thinking and function calling"""
         # 构建提示词，让LLM思考如何处理任务
         prompt = f"Given the task: {req}\nPlease analyze this task and create a detailed execution plan with steps and execute step by step."
-        
+
         # 定义工具调用结构
         tools = [
             {
@@ -110,7 +111,7 @@ class SupervisorAgent(BaseAgent):
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "requirments" :{"type": "string"},
+                            "requirments": {"type": "string"},
                             "plan": {
                                 "type": "array",
                                 "items": {
@@ -118,38 +119,42 @@ class SupervisorAgent(BaseAgent):
                                     "properties": {
                                         "step": {"type": "integer"},
                                         "task": {"type": "string"},
-                                        "assigned_to": {"type": "string"}
+                                        "assigned_to": {"type": "string"},
                                     },
-                                    "required": ["step", "task", "assigned_to"]
-                                }
+                                    "required": ["step", "task", "assigned_to"],
+                                },
                             },
                             "assignments": {
                                 "type": "object",
                                 "additionalProperties": {
                                     "type": "array",
-                                    "items": {"type": "string"}
-                                }
+                                    "items": {"type": "string"},
+                                },
                             },
-                            "reasoning": {"type": "string"}
+                            "reasoning": {"type": "string"},
                         },
-                        "required": ["plan", "assignments", "reasoning"]
-                    }
-                }
+                        "required": ["plan", "assignments", "reasoning"],
+                    },
+                },
             }
         ]
 
-        tool_choice = {"type": "function", "function": {"name": "create_supervisor_execution_plan"}}
-        
-        return await super().process_req(req=prompt, tools=tools, tool_choice=tool_choice)
+        tool_choice = {
+            "type": "function",
+            "function": {"name": "create_supervisor_execution_plan"},
+        }
+
+        return await super().process_req(
+            req=prompt, tools=tools, tool_choice=tool_choice
+        )
 
     async def publish(self, topic: str, message: str):
         messagebus = self.message_bus
         if messagebus:
-            await messagebus.publish('supervisor', message)
+            await messagebus.publish("supervisor", message)
         else:
             print(f"Message Bus not configured. Message: {message}")
 
-   
     def prepare_calibrator_msg(self, result: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare message for Data Calibrator Agent"""
         arguments = result.get("arguments", {})
@@ -158,9 +163,10 @@ class SupervisorAgent(BaseAgent):
 
         if "assignments" not in arguments:
             return {"instruction": "No assignments found in result"}
-        
+
         calibrate_assignments = {
-            key: value for key, value in arguments.get("assignments",{}).items() 
+            key: value
+            for key, value in arguments.get("assignments", {}).items()
             if "calibrator" in key.lower() or "calibration" in key.lower()
         }
 
@@ -176,5 +182,5 @@ class SupervisorAgent(BaseAgent):
         return {
             "instruction": "Data Calibrator Agent, please process the following assignments and requirements",
             "requirements": arguments.get("requirments", ""),
-            "assignments": message
+            "assignments": message,
         }

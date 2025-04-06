@@ -3,27 +3,31 @@ import json
 import logging
 from typing import Dict, List, Any
 from pydantic import BaseModel
-from ..agent_system.agent_system import AgentSystem
+from agent_system.agent_system import AgentSystem
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class TaskPlan(BaseModel):
     steps: List[Dict[str, str]]
     assigned_agents: List[str]
+
 
 def get_task_plan() -> Dict[str, Any]:
     """Function that will be available to LLM for planning tasks"""
     return {
         "name": "get_task_plan",
         "description": "Plan the execution steps and assign agents",
-        "parameters": TaskPlan.model_json_schema()
+        "parameters": TaskPlan.model_json_schema(),
     }
+
 
 def assign_tasks(plan: Dict[str, Any]) -> str:
     """Distribute tasks to agents according to the plan"""
     return f"Tasks assigned according to plan: {json.dumps(plan, indent=2)}"
+
 
 async def test_supervisor_planning():
     try:
@@ -61,13 +65,13 @@ async def test_supervisor_planning():
         logger.info("Calling LLM with function calling...")
         response = await agent_system.llm.generate(
             system_prompt=system_message,
-            messages=[{"role": "user", "content": user_prompt}]
+            messages=[{"role": "user", "content": user_prompt}],
         )
         logger.info(f"Received response from LLM: {response}")
     except Exception as e:
         logger.error(f"Failed to generate response from LLM: {e}")
         raise
-    
+
     # Parse the response as JSON
     try:
         plan = json.loads(response)
@@ -76,6 +80,7 @@ async def test_supervisor_planning():
     except json.JSONDecodeError as e:
         print(f"Error parsing LLM response: {e}")
         print(f"Raw response: {response}")
+
 
 if __name__ == "__main__":
     # Run the async test

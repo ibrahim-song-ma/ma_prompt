@@ -2,6 +2,7 @@ from typing import Dict, Any, List, Callable
 import asyncio
 from collections import defaultdict
 
+
 class MessageBus:
     def __init__(self):
         self.subscribers: Dict[str, List[Callable]] = defaultdict(list)
@@ -13,7 +14,7 @@ class MessageBus:
     def unsubscribe(self, topic: str, callback: Callable):
         if topic in self.subscribers:
             self.subscribers[topic].remove(callback)
-    
+
     def unsubscribe_all(self, topic: str):
         if topic in self.subscribers:
             self.subscribers[topic] = []
@@ -24,14 +25,14 @@ class MessageBus:
             "topic": topic,
             "content": message,
             "sender": sender,
-            "timestamp": asyncio.get_event_loop().time()
+            "timestamp": asyncio.get_event_loop().time(),
         }
         self.message_history.append(message_with_metadata)
-        
+
         tasks = []
         for callback in self.subscribers[topic]:
             tasks.append(asyncio.create_task(callback(message_with_metadata)))
-        
+
         if tasks:
             await asyncio.gather(*tasks)
 

@@ -2,18 +2,24 @@ from typing import Dict, Any, List
 from agent_system.base_agent import BaseAgent
 from agent_system.config import AgentConfig
 
+
 class CalibrationTools:
     """Mock tools for data calibration"""
+
     @staticmethod
     def semantic_search(description: str) -> List[Dict[str, Any]]:
-        return [{"table": "sales", "relevance": 0.9}, {"table": "customers", "relevance": 0.8}]
+        return [
+            {"table": "sales", "relevance": 0.9},
+            {"table": "customers", "relevance": 0.8},
+        ]
 
     @staticmethod
     def query_definition(field: str) -> Dict[str, Any]:
         return {
             "business_definition": "Total sales amount excluding tax",
-            "technical_definition": "SUM(amount) - SUM(tax_amount)"
+            "technical_definition": "SUM(amount) - SUM(tax_amount)",
         }
+
 
 class CalibratorAgent(BaseAgent):
     def __init__(self, config: AgentConfig, message_bus=None, llm=None):
@@ -87,7 +93,7 @@ class CalibratorAgent(BaseAgent):
 
     async def process_req(self, req: str) -> Dict[str, Any]:
         prompt = f"Given the task: {req}\nPlease analyze this task and create a detailed execution plan with steps and assignments."
-        
+
         tools = [
             {
                 "type": "function",
@@ -97,7 +103,7 @@ class CalibratorAgent(BaseAgent):
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "requirments" :{"type": "string"},
+                            "requirments": {"type": "string"},
                             "plan": {
                                 "type": "array",
                                 "items": {
@@ -106,23 +112,32 @@ class CalibratorAgent(BaseAgent):
                                         "step": {"type": "integer"},
                                         # "parameters": {}
                                         "task": {"type": "string"},
-                                        "toold": {"type": "string",
-                                                  "enum": ["API1", "API2", "API3", "function1"]},
+                                        "toold": {
+                                            "type": "string",
+                                            "enum": [
+                                                "API1",
+                                                "API2",
+                                                "API3",
+                                                "function1",
+                                            ],
+                                        },
                                     },
-                                    "required": ["step", "task", "assigned_to"]
-                                }
+                                    "required": ["step", "task", "assigned_to"],
+                                },
                             },
-                            "reasoning": {"type": "string"}
+                            "reasoning": {"type": "string"},
                         },
-                        "required": ["plan", "assignments", "reasoning"]
-                    }
-                }
+                        "required": ["plan", "assignments", "reasoning"],
+                    },
+                },
             }
         ]
-    
-        tool_choice = {"type": "function", "function": {"name": "create_calibrator_execution_plan"}}
-        
-        return await super().process_req(req=prompt, tools=tools, tool_choice=tool_choice)
 
-    
+        tool_choice = {
+            "type": "function",
+            "function": {"name": "create_calibrator_execution_plan"},
+        }
 
+        return await super().process_req(
+            req=prompt, tools=tools, tool_choice=tool_choice
+        )
